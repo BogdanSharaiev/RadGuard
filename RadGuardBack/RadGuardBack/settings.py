@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,7 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'myapi',
-    'drf_yasg'
+    'report_app',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -73,13 +75,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'RadGuardBack.wsgi.application'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+MEDIA_URL = '/reports/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'reports')
 
 DATABASES = {
     'default': {
