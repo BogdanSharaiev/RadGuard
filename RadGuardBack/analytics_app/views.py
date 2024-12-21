@@ -9,6 +9,7 @@ from reportlab.pdfgen import canvas
 from myapi.models import User, Report, RadiationData, Sensor, Location
 from myapi.serializers import ReportSerializer
 from utils import *
+import time
 
 
 class GenerateReport(APIView):
@@ -78,3 +79,78 @@ class GenerateReport(APIView):
 
         serializer = ReportSerializer(report, many=False)
         return Response(serializer.data)
+
+
+class PredictRad(APIView):
+    def get(self, request, location_id, hours):
+        try:
+            location = Location.objects.get(id=location_id)
+
+            sensor = Sensor.objects.get(location=location)
+
+            data = RadiationData.objects.filter(sensor=sensor)
+
+            times = []
+            radiation_levels = []
+
+            last_time = None
+            for obj in data:
+                if last_time is None:
+                    last_time = obj.measured_at
+
+                time_diff = (obj.measured_at - last_time).total_seconds() / 3600
+                times.append(time_diff)
+                radiation_levels.append(float(obj.radiation_level))
+
+            n = len(times)
+
+            sum_x = sum(times)
+            sum_y = sum(radiation_levels)
+            sum_x2 = sum(x ** 2 for x in times)
+            sum_xy = sum(times[i] * radiation_levels[i] for i in range(n))
+
+            beta_1 = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
+            beta_0 = (sum_y - beta_1 * sum_x) / n
+
+            future_time = times[-1] + hours
+            future_radiation = beta_0 + beta_1 * future_time
+
+            future_radiation = max(future_radiation, 0)
+
+            response_data = {
+                "sensor": {
+                    "id": sensor.id,
+                    "name": sensor.sensor_name,
+                    "status": sensor.status
+                },
+                "location": {
+                    "id": location.id,
+                    "city": location.city,
+                    "latitude": location.latitude,
+                    "longitude": location.longitude,
+                    "description": location.description or "No description"
+                },
+                "forecast": {
+                    "hours": hours,
+                    "predicted_radiation_level": round(future_radiation, 2),
+                    "unit": "μSv/h"
+                }
+            }
+
+            return Response(response_data)
+
+        except Location.DoesNotExist:
+            return Response(
+                {"error": "Location with the specified ID does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Sensor.DoesNotExist:
+            return Response(
+                {"error": "Sensor for the specified location does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"An error occurred during radiation prediction: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

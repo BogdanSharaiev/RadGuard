@@ -39,9 +39,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'myapi',
-    'report_app',
+    'analytics_app',
     'drf_yasg',
 ]
+
+
+CRITICAL_RADIATION_LEVEL = 0.5
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.zoho.eu'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'radguard@zohomail.eu'
+EMAIL_HOST_PASSWORD = 'riVgfaEK4JzjY@y'
+DEFAULT_FROM_EMAIL = 'radguard@zohomail.eu'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
