@@ -44,7 +44,17 @@ INSTALLED_APPS = [
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
 CRITICAL_RADIATION_LEVEL = 0.5
+AUTH_USER_MODEL = 'myapi.User'
+
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.zoho.eu'

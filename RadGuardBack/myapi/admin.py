@@ -1,11 +1,14 @@
 from django.contrib import admin
 from .models import *
-from django.contrib.auth.models import User as use
 
 
-admin.site.unregister(use)
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'username', 'role', 'is_active', 'is_staff', 'created_at')
+    search_fields = ('email', 'username')
+    ordering = ('email',)
 
-admin.site.register(User)
+
 admin.site.register(Report)
 admin.site.register(Alert)
 admin.site.register(Sensor)

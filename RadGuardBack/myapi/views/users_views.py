@@ -4,10 +4,20 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from ..models import User, Sensor, Report
 from ..serializers import UserSerializer, SensorSerializer, ReportSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from ..permissions import IsAdminUserPermission
+from rest_framework.exceptions import PermissionDenied
 
+
+from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from ..models import User
 
 class LoginView(APIView):
     def post(self, request):
@@ -22,7 +32,8 @@ class LoginView(APIView):
         except User.DoesNotExist:
             raise AuthenticationFailed("Invalid credentials")
 
-        if not check_password(password, user.password_hash):
+        # Перевірка пароля
+        if not check_password(password, user.password):
             raise AuthenticationFailed("Invalid credentials")
 
         refresh = RefreshToken.for_user(user)
@@ -35,6 +46,13 @@ class LoginView(APIView):
 
 
 class UserList(APIView):
+    permission_classes = []
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [AllowAny()]
+        return [IsAuthenticated(), IsAdminUserPermission()]
+
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -51,6 +69,7 @@ class UserList(APIView):
 
 
 class UserSensorsList(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, id):
         try:
             user = User.objects.get(id=id)
@@ -63,37 +82,55 @@ class UserSensorsList(APIView):
 
 
 class UserDetail(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
-        try:
-            user = User.objects.get(id=id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+        if request.user.role == 'admin' or request.user.id == id:
+            try:
+                user = User.objects.get(id=id)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        raise PermissionDenied("You do not have permission to view this user.")
 
     def put(self, request, id):
-        try:
-            user = User.objects.get(id=id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.role == 'admin' or request.user.id == id:
+            try:
+                user = User.objects.get(id=id)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Prevent regular users from changing their role or sensitive information
+            if request.user.role != 'admin':
+                data = request.data.copy()
+                data.pop('role', None)
+                serializer = UserSerializer(user, data=data)
+            else:
+                serializer = UserSerializer(user, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        raise PermissionDenied("You do not have permission to modify this user.")
 
     def delete(self, request, id):
-        try:
-            user = User.objects.get(id=id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        # Only allow admins to delete users
+        if request.user.is_staff:
+            try:
+                user = User.objects.get(id=id)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        user.delete()
-        return Response({'message': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            user.delete()
+            return Response({'message': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
+        raise PermissionDenied("You do not have permission to delete this user.")
 
 class UserReport(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, id):
         try:
             user = User.objects.get(id=id)

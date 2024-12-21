@@ -17,15 +17,16 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         if password:
-            validated_data['password_hash'] = make_password(password)
+            validated_data['password'] = make_password(password)
         return User.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         password = validated_data.get('password', None)
         if password:
-            validated_data['password_hash'] = make_password(password)
+            validated_data['password'] = make_password(password)
 
         return super().update(instance, validated_data)
+
 
 
 class LocationSerializer(serializers.ModelSerializer):
