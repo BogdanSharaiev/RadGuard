@@ -1,11 +1,11 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..models import RadiationData, Sensor, User, Alert
-from ..serializers import RadiationDataSerializer
-from django.core.mail import send_mail
-from django.conf import settings
 
+from ..models import RadiationData, User, Alert
+from ..serializers import RadiationDataSerializer
 
 CRITICAL_RADIATION_LEVEL = 0.5
 

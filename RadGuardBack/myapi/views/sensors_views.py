@@ -60,4 +60,3 @@ class SensorDetail(APIView):
 
         sensor.delete()
         return Response({'message': 'Sensor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
-

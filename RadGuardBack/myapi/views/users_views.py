@@ -1,9 +1,10 @@
+from django.contrib.auth.hashers import check_password
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.exceptions import AuthenticationFailed
+
 from ..models import User, Sensor, Report
 from ..serializers import UserSerializer, SensorSerializer, ReportSerializer
 

@@ -5,6 +5,10 @@ from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
+    role = serializers.ChoiceField(
+        choices=[('user', 'User'), ('admin', 'Admin')],
+        default='user'
+    )
 
     class Meta:
         model = User

@@ -1,19 +1,19 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 import os
 from datetime import datetime
 from django.conf import settings
+from myapi.models import Report, RadiationData, Sensor, Location
+from myapi.serializers import ReportSerializer
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from myapi.models import User, Report, RadiationData, Sensor, Location
-from myapi.serializers import ReportSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from utils import *
-import time
 
 
 class GenerateReport(APIView):
     def get(self, request, sensor_id: int, start_date: str, end_date: str) -> Response:
+        print(request)
         token = get_token_from_request(request)
         user = get_user_from_token(token)
 
