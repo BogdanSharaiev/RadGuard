@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'myapi',
     'analytics_app',
     'drf_yasg',
+    'maintenance'
 ]
 
 

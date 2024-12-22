@@ -1,23 +1,17 @@
 from django.contrib.auth.hashers import check_password
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from ..models import User, Sensor, Report
-from ..serializers import UserSerializer, SensorSerializer, ReportSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from ..permissions import IsAdminUserPermission
 from rest_framework.exceptions import PermissionDenied
-
-
-from django.contrib.auth.hashers import check_password
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from ..models import Sensor, Report
 from ..models import User
+from ..permissions import IsAdminUserPermission
+from ..serializers import UserSerializer, SensorSerializer, ReportSerializer
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -70,6 +64,7 @@ class UserList(APIView):
 
 class UserSensorsList(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         try:
             user = User.objects.get(id=id)
@@ -101,7 +96,6 @@ class UserDetail(APIView):
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-            # Prevent regular users from changing their role or sensitive information
             if request.user.role != 'admin':
                 data = request.data.copy()
                 data.pop('role', None)
@@ -117,7 +111,6 @@ class UserDetail(APIView):
         raise PermissionDenied("You do not have permission to modify this user.")
 
     def delete(self, request, id):
-        # Only allow admins to delete users
         if request.user.is_staff:
             try:
                 user = User.objects.get(id=id)
@@ -129,8 +122,10 @@ class UserDetail(APIView):
 
         raise PermissionDenied("You do not have permission to delete this user.")
 
+
 class UserReport(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         try:
             user = User.objects.get(id=id)
