@@ -7,7 +7,12 @@ from rest_framework.views import APIView
 from ..models import RadiationData, User, Alert
 from ..serializers import RadiationDataSerializer
 
-CRITICAL_RADIATION_LEVEL = 0.5
+LEVELS = {
+    'Low': 0.1,
+    'Moderate': 0.3,
+    'High': 0.5,
+    'Critical': 1.0,
+}
 
 
 class RadiationDataList(APIView):
@@ -21,24 +26,46 @@ class RadiationDataList(APIView):
         if serializer.is_valid():
             radiation_data = serializer.save()
 
-            if radiation_data.radiation_level > CRITICAL_RADIATION_LEVEL:
-                sensor = radiation_data.sensor
-                user = User.objects.get(sensor=sensor.id)
+            if radiation_data.radiation_level >= LEVELS['Critical']:
+                alert_level = 'Critical'
+                alert_message = (f"Critical alert: Radiation level in sensor '{radiation_data.sensor.sensor_name}' "
+                                 f"at {radiation_data.sensor.location.city} is "
+                                 f"extremely high: {radiation_data.radiation_level} mSv/h.")
+            elif radiation_data.radiation_level >= LEVELS['High']:
+                alert_level = 'High'
+                alert_message = (f"High alert: Radiation level in sensor "
+                                 f"'{radiation_data.sensor.sensor_name}' at {radiation_data.sensor.location.city} "
+                                 f"is high: {radiation_data.radiation_level} mSv/h.")
+            elif radiation_data.radiation_level >= LEVELS['Moderate']:
+                alert_level = 'Moderate'
+                alert_message = (f"Moderate alert: Radiation level in sensor "
+                                 f"'{radiation_data.sensor.sensor_name}' at "
+                                 f"{radiation_data.sensor.location.city} "
+                                 f"is moderate: {radiation_data.radiation_level} mSv/h.")
+            elif radiation_data.radiation_level >= LEVELS['Low']:
+                alert_level = 'Low'
+                alert_message = (f"Low alert: Radiation level in sensor "
+                                 f"'{radiation_data.sensor.sensor_name}' "
+                                 f"at {radiation_data.sensor.location.city} "
+                                 f"is slightly elevated: {radiation_data.radiation_level} mSv/h.")
+            else:
+                alert_level = 'Normal'
+                alert_message = (f"Radiation level in sensor '{radiation_data.sensor.sensor_name}'"
+                                 f" at {radiation_data.sensor.location.city} "
+                                 f"is normal: {radiation_data.radiation_level} mSv/h.")
 
-                alert_message = (
-                    f"Увага! У сенсорі '{sensor.sensor_name}' в місті '{sensor.location.city}' "
-                    f"зафіксовано критичний рівень радіації: {radiation_data.radiation_level} мЗв/год."
-                )
-                Alert.objects.create(
-                    sensor=sensor,
-                    alert_message=alert_message,
-                    alert_level="Critical",
-                )
+            Alert.objects.create(
+                sensor=radiation_data.sensor,
+                alert_message=alert_message,
+                alert_level=alert_level,
+            )
 
+            if alert_level in ['High', 'Critical']:
+                user = User.objects.get(sensor=radiation_data.sensor)
                 email = user.email
                 if email:
                     send_mail(
-                        subject="Критичний рівень радіації",
+                        subject=f"{alert_level} Radiation Alert",
                         message=alert_message,
                         from_email=settings.DEFAULT_FROM_EMAIL,
                         recipient_list=[email],

@@ -1,18 +1,13 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from datetime import datetime
-from django.core.management import call_command
-from django.conf import settings
 import os
-import subprocess
-from myapi.permissions import IsAdminUserPermission
+from datetime import datetime
 import psycopg2
-from psycopg2 import sql
-import os
-from datetime import datetime
-from rest_framework.response import Response
 from django.conf import settings
+from django.core.management import call_command
+from myapi.permissions import IsAdminUserPermission
+from psycopg2 import sql
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class PostgresDBManagementView(APIView):

@@ -111,7 +111,7 @@ class UserDetail(APIView):
         raise PermissionDenied("You do not have permission to modify this user.")
 
     def delete(self, request, id):
-        if request.user.is_staff:
+        if request.user.role == 'admin':
             try:
                 user = User.objects.get(id=id)
             except User.DoesNotExist:
