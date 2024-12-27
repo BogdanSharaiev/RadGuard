@@ -5,12 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ef3576b-a982-4bfd-b957-385de503a952" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/RadGuardBack/analytics_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/analytics_app/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RadGuardBack/maintenance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/maintenance/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RadGuardBack/myapi/views/rad_data_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/myapi/views/rad_data_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RadGuardBack/RadGuardBack/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/RadGuardBack/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RadGuardBack/myapi/views/locations_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/myapi/views/locations_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RadGuardBack/myapi/views/sensors_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/myapi/views/sensors_views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RadGuardBack/myapi/views/users_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/myapi/views/users_views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RadGuardBack/reports/звіт_про_рівень_радіації_6_20241212_до_20241221.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RadGuardBack/reports/звіт_про_рівень_радіації_7_20241212_до_20241221.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RadGuardBack/myapi/views/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/RadGuardBack/myapi/views/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

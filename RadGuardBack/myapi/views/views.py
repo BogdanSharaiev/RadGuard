@@ -12,7 +12,6 @@ from RadGuardBack.myapi.serializers import (
 )
 
 
-# 1. User (Користувачі)
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')

@@ -1,12 +1,20 @@
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ..models import Location
+from ..permissions import IsAdminUserPermission
 from ..serializers import LocationSerializer
 
 
 class LocationList(APIView):
+    permission_classes = []
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [IsAdminUserPermission()]
     def get(self, request):
         locations = Location.objects.all()
         serializer = LocationSerializer(locations, many=True)
@@ -21,6 +29,13 @@ class LocationList(APIView):
 
 
 class LocationDetail(APIView):
+    permission_classes = []
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        return [IsAdminUserPermission()]
+
     def get(self, request, id):
         try:
             location = Location.objects.get(id=id)

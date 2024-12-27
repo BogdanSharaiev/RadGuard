@@ -1,15 +1,19 @@
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from ..models import Sensor, RadiationData
 from ..serializers import SensorSerializer, RadiationDataSerializer
 
 
 class SensorList(APIView):
     def get(self, request):
-        sensors = Sensor.objects.all()
-        serializer = SensorSerializer(sensors, many=True)
-        return Response(serializer.data)
+        if request.user.role == 'admin':
+            sensors = Sensor.objects.all()
+            serializer = SensorSerializer(sensors, many=True)
+            return Response(serializer.data)
+        raise PermissionDenied("You do not have permission to view this sensors.")
 
     def post(self, request):
         serializer = SensorSerializer(data=request.data)
@@ -53,10 +57,12 @@ class SensorDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
-        try:
-            sensor = Sensor.objects.get(id=id)
-        except Sensor.DoesNotExist:
-            return Response({'error': 'Sensor not found'}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.role == 'admin':
+            try:
+                sensor = Sensor.objects.get(id=id)
+            except Sensor.DoesNotExist:
+                return Response({'error': 'Sensor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        sensor.delete()
-        return Response({'message': 'Sensor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            sensor.delete()
+            return Response({'message': 'Sensor deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        raise PermissionDenied("You do not have permission to change this sensor.")

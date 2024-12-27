@@ -26,7 +26,6 @@ class LoginView(APIView):
         except User.DoesNotExist:
             raise AuthenticationFailed("Invalid credentials")
 
-        # Перевірка пароля
         if not check_password(password, user.password):
             raise AuthenticationFailed("Invalid credentials")
 
